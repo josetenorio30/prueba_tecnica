@@ -63,7 +63,7 @@ final class UserProjectController extends AbstractController
             return $this->json(['error' => 'User or project not found'], 404);
         }
 
-        // Crear relación usuario-proyecto
+        
         $userProject = new UserProject();
         $userProject->setUser($user);
         $userProject->setProject($project);

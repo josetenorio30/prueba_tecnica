@@ -90,7 +90,7 @@ class Project
     public function removeUserProject(UserProject $userProject): static
     {
         if ($this->userProjects->removeElement($userProject)) {
-            // set the owning side to null (unless already changed)
+           
             if ($userProject->getProject() === $this) {
                 $userProject->setProject(null);
             }
@@ -120,7 +120,7 @@ class Project
     public function removeTask(Task $task): static
     {
         if ($this->tasks->removeElement($task)) {
-            // set the owning side to null (unless already changed)
+         
             if ($task->getProject() === $this) {
                 $task->setProject(null);
             }

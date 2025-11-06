@@ -50,7 +50,7 @@ final class TaskController extends AbstractController
             $user = $t->getUser();
             $project = $t->getProject();
 
-            // Buscar la tarifa (UserProject)
+           
             $rate = null;
             if ($user && $project) {
                 $userProject = $em->getRepository(UserProject::class)
@@ -182,7 +182,7 @@ final class TaskController extends AbstractController
 
         $em->flush();
 
-        // devolver la tarea actualizada (puedes formatear la salida como en index)
+       
         $userName = $task->getUser()?->getName();
         $projectName = $task->getProject()?->getName();
 
