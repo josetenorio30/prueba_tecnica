@@ -120,4 +120,78 @@ final class TaskController extends AbstractController
 
         return $this->json(['message' => 'Task created', 'id' => $task->getId()], 201);
     }
+
+
+        #[Route('/{id}', methods: ['PATCH'])]
+    #[OA\Patch(
+        summary: 'Actualizar una tarea (parcial)',
+        description: 'Actualiza campos permitidos de la tarea. Envía solo los campos que quieras cambiar.',
+        tags: ['Tareas']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            type: 'object',
+            properties: [
+                new OA\Property(property: 'name', type: 'string', example: 'Nuevo título'),
+                new OA\Property(property: 'description', type: 'string', example: 'Descripción actualizada'),
+                new OA\Property(property: 'user_id', type: 'integer', example: 1),
+                new OA\Property(property: 'project_id', type: 'integer', example: 2)
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Tarea actualizada correctamente')]
+    #[OA\Response(response: 404, description: 'Tarea no encontrada')]
+    public function patch(
+        int $id,
+        Request $request,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $task = $em->getRepository(Task::class)->find($id);
+        if (!$task) {
+            return $this->json(['error' => 'Task not found'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            return $this->json(['error' => 'Invalid JSON'], 400);
+        }
+
+        // campos opcionales
+        if (array_key_exists('name', $data)) {
+            $task->setName($data['name']);
+        }
+        if (array_key_exists('description', $data)) {
+            $task->setDescription($data['description']);
+        }
+
+        if (array_key_exists('user_id', $data)) {
+            $user = $em->getRepository(User::class)->find($data['user_id']);
+            if (!$user) {
+                return $this->json(['error' => 'User not found'], 404);
+            }
+            $task->setUser($user);
+        }
+        if (array_key_exists('project_id', $data)) {
+            $project = $em->getRepository(Project::class)->find($data['project_id']);
+            if (!$project) {
+                return $this->json(['error' => 'Project not found'], 404);
+            }
+            $task->setProject($project);
+        }
+
+        $em->flush();
+
+        // devolver la tarea actualizada (puedes formatear la salida como en index)
+        $userName = $task->getUser()?->getName();
+        $projectName = $task->getProject()?->getName();
+
+        return $this->json([
+            'id' => $task->getId(),
+            'name' => $task->getName(),
+            'description' => $task->getDescription(),
+            'user' => $userName,
+            'project' => $projectName
+        ], 200);
+    }
 }
